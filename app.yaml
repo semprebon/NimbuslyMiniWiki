@@ -1,0 +1,27 @@
+application: nimbusly-miniwiki
+version: 1-4
+runtime: python
+api_version: 1
+
+handlers:
+- url: /stylesheets
+  static_dir: stylesheets
+
+- url: /javascript
+  static_dir: javascript
+
+- url: /.*/article.*
+  script: item.py
+
+- url: /uitest
+  static_dir: uitest
+
+- url: /test.*
+  script: gaeunit.py
+  
+
+
+- url: /\w+
+  static_files: miniwiki.html
+  upload: miniwiki.html    
+

@@ -1,0 +1,31 @@
+body {
+  font-family: Verdana, Helvetica, sans-serif;
+  background-color: #ffffff;
+}
+
+.page { display: none; max-width: 50em; position: relative;}
+.page.current { display: block; }
+
+h1 { font-size: 120%; width; color: #000000; background-color: #bbbbbb; margin: 0 0 0.5em 0; padding: 0 0 0 0.8em;}
+div.content { padding: 0 0 0 1em; }
+
+.menu { 
+    display: block;
+    position: absolute;
+    top: 0.2em; right: 0.8em;
+    padding: 0; margin: 0;
+    width: 11em;
+}
+.menu li { list-style-type: none; }
+.menu a, .menu a:visited {
+    width: 5em;
+    border: 1px solid #808;
+    font-size:0.8em;
+    text-align: center;
+    text-decoration: none;
+    background: #808;
+    color: #eee;
+    float: right;
+    margin: 0 0.2em;
+}
+textaarea { display: block; width: 100%;}

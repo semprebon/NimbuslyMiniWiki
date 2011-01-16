@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>MiniWiki</title>
+    <link href="/stylesheets/main.css" rel="stylesheet" type="text/css">
+    <link href="/stylesheets/custom-theme/jquery-ui-1.8.7.custom.css" rel="stylesheet" type="text/css">
+    <script src="https://www.google.com/jsapi?key=ABQIAAAAhq0TTsvaCdr5kjuTwMgIBhR5mXRrWjWLv2_AzfmImlrbP7zdFRTFb-KyhkeO6MDW2aM0ceXzb8rkog" type="text/javascript"></script>
+    <script type="text/javascript">
+      google.load("jquery", "1.4.4");
+      google.load("jqueryui", "1.8.7");
+    </script>
+    <script language="javascript" src="/javascript/textile.js"></script>
+    <script language="javascript" src="/javascript/storage.js"></script>
+    <script language="javascript" src="/javascript/main.js"></script>
+  </head>
+  <body class="ui-helper-reset">
+    <div id="show_page" class='page ui-widget-contentt'>
+      
+      <h1 class='name field'>Name</h1>
+      <div class='content field'><p>Testing</p></div>
+      
+      <div class="menu">
+        <li class="edit"><a href="#">edit</a>
+        <li class="search"><a href="#">search</a>
+      </div>
+
+    </div>
+    
+    <div id='edit_page' class='page'>
+      <form>
+        <h1><input type="text" class="name field" name="name"></h1>
+        <textarea class="content field" name="content" width="45" height="20">Test</textarea>
+        <input type="hidden" name='_method' value="put">
+      </form>
+      <div class="menu">
+        <li class="save"><a href="#">save</a>
+      </div>
+    </div>
+    
+    <div id='search_page' class='page'>
+      <h1>Search</h1>
+      <form>
+        <input type="text" name="name">
+      </form>
+      <div class="menu">
+        <li class="show"><a href="#">back</a>
+      </div>
+    </div>
+    
+    <div id='error'></div>
+  </body>
+  <script language="javascript">
+    $(document).ready(function() { 
+      new window.MiniWiki('title') 
+    })
+  </script>
+  
+</html>
