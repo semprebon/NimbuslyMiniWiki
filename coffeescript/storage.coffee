@@ -147,13 +147,10 @@ class CachedRESTStorage
         
     syncItem: (item, callback) ->
         if (typeof item) == "string"
-            console.log("Syncing deleted item")
             this.deleteRemote item, =>
-                console.log("Item deleted remotely; now deleting locally", item)
                 this.deleteLocal(item)
                 callback()
         else
-            console.log("Syncing updated item")
             this.putRemote item, =>
                 this.state(item, CLEAN)
                 callback()
@@ -166,24 +163,26 @@ class CachedRESTStorage
         else
             item = items[0]
             items = items.slice(1, items.length-1)
-            console.log("Syncing " + item + " " + items.length + " left")
             this.syncItem(item, => this.sendNextItem(items, callback))
                         
     sendLocallyModifiedItems: (callback) ->
         items = this.unsyncedItems()
-        this.log("sending " + items.length + " local items to remote")
         this.sendNextItem(items, callback) 
         
     # TODO: save last sent remote version and use it when resending
     sync: (callback) ->
-        this.log("syncing remote data...")
+        this.log("syncing remote data...", "")
         this.sendLocallyModifiedItems =>
-            this.log("getting remote changes")
+            this.log("getting remote changes", "")
             $.ajax { type: 'GET', url: @url + "?since_version=0", dataType: "json", success: (items) =>
-                this.log("got " + items.length + " items")
+                this.log("got " + items.length + " items", "")
                 for item in items
-                    this.putLocal(item, CLEAN)
-                this.log("synced.")
+                    this.log("syncing " + JSON.stringify(item))
+                    if item.deleted
+                        this.deleteLocal(item)
+                    else
+                        this.putLocal(item, CLEAN)
+                this.log("synced.", "")
                 callback()
             }
 

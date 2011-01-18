@@ -100,9 +100,17 @@ test "locally delete existing synced item, then resync", 4, ->
                 }
                 start()
 
-# delete existing local
-# remotely delete 
-
+test "remotely delete existing synced item, then resync", 1, ->
+    resetWiki()
+    store.syncing(false)
+    testItem = { name: "existingItem", content: "before update" }
+    stop()
+    store.put testItem, =>
+        store.sync =>
+            ajax { url: "/" + testItem.name, type: 'DELETE' }
+            store.sync =>
+                equals(store.getLocal(testItem.name, undefined, "Local item should be deleted"))
+                start()
 # 
 # test "retrieving an unknown item 'test'", 1, ->
 #     resetWiki()

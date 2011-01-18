@@ -31,6 +31,7 @@ class Item(db.Model):
     content = db.StringProperty(multiline=True)
     update_date = db.DateTimeProperty()
     version = db.IntegerProperty()
+    deleted = db.BooleanProperty(default=False)
     
     # return a hash for subsequent conversion to json
     def to_dict(self):
@@ -39,13 +40,22 @@ class Item(db.Model):
             "store_name": self.parent_key().name(),
             "name": self.name, 
             "content": self.content,
-            "version": self.version
+            "version": self.version,
+            "deleted": self.deleted
         }
     def update_properties(self, name, content):
+        self.deleted = False
         if name:
             self.name = name
-        if content:
+        if content: 
             self.content = content
+            
+    def mark_deleted(self):
+        logging.info("marking " + self.key().name() + " as deleted")
+        self.deleted = True
+        self.content = "Deleted"
+        new_key = self.put()
+        logging.info("Saved " + json.dumps(self.to_dict()))
             
 class Store(db.Model):
     version = db.IntegerProperty()
@@ -92,13 +102,13 @@ class ItemHandler(LoggingHandler):
         self.log_method("GET")
         article = self.item()
         
-        if article != None:
-            self.log_action("Fetched")
-            self.response.out.write(json.dumps(article.to_dict()))
-        else:
+        if article == None or article.deleted:
             self.log_action("Failed to find")
             self.response.set_status(404)
             self.response.out.write('Item ' + self.item_name() + ' not found  ')
+        else:
+            self.log_action("Fetched")
+            self.response.out.write(json.dumps(article.to_dict()))
         
     def put(self):
         self.log_method("PUT")
@@ -124,7 +134,7 @@ class ItemHandler(LoggingHandler):
         article = self.item()
         
         if article != None:
-            article.delete()
+            article.mark_deleted()
             self.log_action("Deleted")
             self.response.out.write('deleted\n')
         else:
@@ -164,9 +174,11 @@ class StoreHandler(LoggingHandler):
             search_name = self.request.get("term")
             self.log("fetching for " + search_name)
             articles = articles.filter("name >=", search_name).filter("name <", search_name + u"\ufffd")
+            articles = articles.filter("deleted ==", False)
         elif self.request.get('since_version'):
             articles = articles.filter("version >", int(self.request.get('since_version')))
         else:
+            articles = articles.filter("deleted ==", False)
             self.log("fetching all from")
         articles = articles.fetch(limit=1000)
 
@@ -175,6 +187,7 @@ class StoreHandler(LoggingHandler):
         else:
             result = [article.to_dict() for article in articles]
 
+        logging.info("writing " + json.dumps(result))
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(json.dumps(result))
 
