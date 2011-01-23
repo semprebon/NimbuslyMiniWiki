@@ -28,27 +28,39 @@ import cgi
 
 class Item(db.Model):
     name = db.StringProperty()
-    content = db.StringProperty(multiline=True)
+    content = db.TextProperty()
     update_date = db.DateTimeProperty()
     version = db.IntegerProperty()
     deleted = db.BooleanProperty(default=False)
+    parent_item = db.SelfReferenceProperty()
     
+    def updatable_properties(self):
+        return ["name", "content", "parent_item"]
+        
     # return a hash for subsequent conversion to json
     def to_dict(self):
+        if self.parent_item != None:
+            parent_name = self.parent_item.name
+        else:
+            parent_name = None
         return {
             "key": self.key().id_or_name(), 
             "store_name": self.parent_key().name(),
             "name": self.name, 
             "content": self.content,
+            "parent_item": parent_name,
             "version": self.version,
-            "deleted": self.deleted
+            "deleted": self.deleted,
         }
-    def update_properties(self, name, content):
+        
+    def update_properties(self, new_properties):
         self.deleted = False
-        if name:
-            self.name = name
-        if content: 
-            self.content = content
+        logging.info("updating properties to " + json.dumps(new_properties))
+        if 'parent_item' in new_properties:
+            new_properties['parent_item'] = db.Key.from_path("Item", new_properties['parent_item'], parent=self.parent_key())
+        for name in self.updatable_properties():
+            if name in new_properties:
+                setattr(self, name, new_properties[name])
             
     def mark_deleted(self):
         logging.info("marking " + self.key().name() + " as deleted")
@@ -107,20 +119,46 @@ class ItemHandler(LoggingHandler):
             self.response.set_status(404)
             self.response.out.write('Item ' + self.item_name() + ' not found  ')
         else:
+            logging.info("fetched item " + article.name + " with  properties to " + json.dumps(article.to_dict()))
             self.log_action("Fetched")
             self.response.out.write(json.dumps(article.to_dict()))
+
+    def param_for(self, name):
+        return { name: self.params.get(name, [None])[0] }
         
+    def add_property(self, properties, new_property):
+        properties.update(new_property)
+        properties
+        
+    def parse_params(self):
+        params = cgi.parse_qs(self.request.body)
+        for key, value in params.items():
+            params[key] = value[0]
+        return params
+        
+    def slice_params(self, params, allowed_keys):
+        result = {}
+        for key, value in params.items():
+            if key in allowed_keys:
+                result[key] = value
+        return result
+            
     def put(self):
         self.log_method("PUT")
         article = self.item()
 
         # due to bug in webapp, put doesn't get parameters from body
-        params = cgi.parse_qs(self.request.body)
+        params = self.parse_params()
         store = db.get(self.store_key())
+        if store == None:
+            self.response.set_status(404)
+            self.response.out.write('Store ' + store + ' not found  ')
+            return
+            
         new_article = article == None
         if new_article:
             article = Item(key_name=self.item_name(), parent=store.key())
-        article.update_properties(params.get("name", [None])[0], params.get('content', [None])[0])
+        article.update_properties(self.slice_params(params, article.updatable_properties()))
         store.version += 1
         article.version = store.version
         article.put()

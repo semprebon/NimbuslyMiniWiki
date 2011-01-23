@@ -13,9 +13,10 @@ class CachedRESTStorage
     #
     # @param {string} url  base url for the backing web service
     # @param {string} keyField  field of stored items to use as a key field
-    constructor: (url, keyField) ->
+    constructor: (url, keyField, klass) ->
         this.url = url
         this.keyField = keyField
+        this.klass = klass
         this.log("cached rest storage created for " + this.url, "(no key)")
         $('#ajax_error').ajaxError((e, xhr, settings, exception) =>
             $(this).html(xhr.responseText)
@@ -31,7 +32,7 @@ class CachedRESTStorage
         return undefined if raw == undefined
         meta = JSON.parse(raw)
         return undefined if meta.state == DELETED
-        return meta.data
+        return this.itemFromAttributes(meta.data)
     
     # Get item from remote storage and put it into local storage
     #
@@ -62,6 +63,7 @@ class CachedRESTStorage
     # @param {object} data  Item to store
     # @param {string} state  optional state to set on the object, used internaly  
     putLocal: (data, state) ->
+        data = this.attributesFromItem(data)
         state = DIRTY if state == undefined
         localStorage[this.urlFor(data)] = JSON.stringify({ state: state, data: data })
 
@@ -71,6 +73,8 @@ class CachedRESTStorage
     # @param {function()} callback  function to call after item is put
     # @param {function(xhr,status)} errorCallback  function to call if an AJAX error occurs
     putRemote: (data, callback, errorCallback) ->
+        data = this.attributesFromItem(data)
+        console.log("remote putting " + JSON.stringify(data))
         $.ajax { 
             type: 'PUT', url: this.urlFor(data), data: data, 
             success: (data) => this.log("remote data saved", data); callback(data) if callback,
@@ -88,7 +92,7 @@ class CachedRESTStorage
             this.log("storing remote data...", data)
             this.putRemote(data, callback, errorCallback)
         else
-            callback()
+            callback() if callback
 
     # Mark an item as deleted in local storage, and queue it to be deleted remotely
     markDelete: (keyOrItem) ->
@@ -183,7 +187,7 @@ class CachedRESTStorage
                     else
                         this.putLocal(item, CLEAN)
                 this.log("synced.", "")
-                callback()
+                callback() if callback
             }
 
     # Return an array of all keys that start with the specified prefix
@@ -195,13 +199,27 @@ class CachedRESTStorage
             keys[keys.length] = this.keyForUrl(url) if url.substr(0, urlPrefix.length) == urlPrefix
         return keys
     
-    search: (prefix, callback) ->
-        this.log("searching local keys", prefix + "*")
-        keys = this.keysWithPrefix(prefix)
-        articles = (this.getLocal(key) for key in keys)
-        callback(articles)
+    searchLocal: (condition) ->
+        if typeof condition == 'string'
+            prefix = condition
+            condition = (item) -> item.name.substr(0, prefix.length) == prefix
+        (item for item in this.allItems() when condition(item))
+        
+    search: (condition, callback) ->
+        items = this.searchLocal(condition)
+        callback(items)
+        
+    attributesFromItem: (item) -> if item && item.toAttributes then item.toAttributes() else item
     
-    allKeys: -> this.keysWithPrefix("")
+    itemFromAttributes: (attributes) -> 
+        if attributes && this.klass &&  !(attributes instanceof this.klass)
+            new this.klass(attributes)
+        else 
+            attributes
+    
+    allKeys: -> this.keysWithPrefix("").sort()
+        
+    allItems: (callback) -> (this.getLocal(key) for key in this.allKeys())
         
     # Remove all local data for this store
     reset: -> 
@@ -210,11 +228,11 @@ class CachedRESTStorage
     
     size: -> this.allKeys().length
         
-    urlFor: (keyOrItem) ->  @url + "/" + this.keyFor(keyOrItem)
+    urlFor: (keyOrItem) ->  this.url + "/" + this.keyFor(keyOrItem)
     
     keyFor: (keyOrItem) -> if (typeof keyOrItem) == "object" then keyOrItem[this.keyField] else keyOrItem
 
-    keyForUrl: (url) -> url.substr(@url.length + 1)
+    keyForUrl: (url) -> url.substr(this.url.length + 1)
 
     log: (message, keyOrItem) ->
         console.info(message + ": " + this.keyFor(keyOrItem))

@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta name="HandheldFriendly" content="true" />
+    <meta name="viewport" content="width=device-width, height=device-height, user-scalable=no" />
     <title>MiniWiki</title>
     <link href="/stylesheets/main.css" rel="stylesheet" type="text/css">
     <link href="/stylesheets/custom-theme/jquery-ui-1.8.7.custom.css" rel="stylesheet" type="text/css">
-    <script src="https://www.google.com/jsapi?key=ABQIAAAAhq0TTsvaCdr5kjuTwMgIBhR5mXRrWjWLv2_AzfmImlrbP7zdFRTFb-KyhkeO6MDW2aM0ceXzb8rkog" type="text/javascript"></script>
+    <!--script src="https://www.google.com/jsapi?key=ABQIAAAAhq0TTsvaCdr5kjuTwMgIBhR5mXRrWjWLv2_AzfmImlrbP7zdFRTFb-KyhkeO6MDW2aM0ceXzb8rkog" type="text/javascript"></script>
     <script type="text/javascript">
       google.load("jquery", "1.4.4");
       google.load("jqueryui", "1.8.7");
-    </script>
-    <script language="javascript" src="/javascript/textile.js"></script>
-    <script language="javascript" src="/javascript/storage.js"></script>
-    <script language="javascript" src="/javascript/main.js"></script>
+    </script-->
+    <script type="text/javascript" src="/javascript/jquery-1.4.4.js"></script>
+    <script type="text/javascript" src="/javascript/jquery-ui-1.8.9.custom.min.js"></script>
+    <script type="text/javascript" src="/javascript/textile.js"></script>
+    <script type="text/javascript" src="/javascript/generated/storage.js"></script>
+    <script type="text/javascript" src="/javascript/generated/main.js"></script>
   </head>
   <body class="ui-helper-reset">
     <div id="show_page" class='page ui-widget-contentt'>
@@ -22,13 +26,14 @@
       <div class="menu">
         <li class="edit"><a href="#">edit</a>
         <li class="search"><a href="#">search</a>
+        <li class="sync"><a href="#">sync</a>
       </div>
 
     </div>
     
     <div id='edit_page' class='page'>
       <form>
-        <h1><input type="text" class="name field" name="name"></h1>
+        <h1><input type="text" class="name field" name="name">&nbsp;</h1>
         <textarea class="content field" name="content" width="45" height="20">Test</textarea>
         <input type="hidden" name='_method' value="put">
       </form>
@@ -47,7 +52,7 @@
       </div>
     </div>
     
-    <div id='error'></div>
+    <div id='error' style="display:none"></div>
   </body>
   <script language="javascript">
     $(document).ready(function() { 

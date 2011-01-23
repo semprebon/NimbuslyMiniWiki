@@ -1,6 +1,16 @@
 url = 'http://localhost:8080/test_storage/article'
 
-store = new window.CachedRESTStorage url, "name"
+class TestItemClass
+    constructor: (hash) ->
+        for own key, value of hash
+            this[key] = value
+    
+    toAttributes: -> 
+        { name: this.name, content: this.content }
+    
+    uppercaseName: -> this.name.toUpperCase()
+    
+store = new window.CachedRESTStorage url, "name", TestItemClass
 
 ajax = (options) -> window.testAjax(url, options)
 
@@ -11,20 +21,67 @@ resetWiki = ->
 
 itemIsOnRemote = (item) ->
     data = ajax({ url: "/" + item.name, dataType: "json" })
+    console.log("Fetched item " + data.name + " from remote with content " + data.content)
+    console.log("content of local item is " + item.content)
+    console.log("itemsOnRemote returning " + (item.content == data.content))
     return item.content == data.content
 
-module "storage"
+module "storage basics"
 
 test "reset wiki should delete all articles", 1, ->
     resetWiki()
     equals(store.size(), 0, "store should be empty")
 
+test "retrieving an unknown item 'test'", 1, ->
+     resetWiki()
+     stop(1000)
+     store.get "test", (data) -> 
+        equals(data, undefined, "should return undefined"); 
+        start()
+
+test "searching for item by name prefix", 3, ->
+     resetWiki()
+     store.putLocal({ name: "item 1", content: "testing 1" })
+     store.putLocal({ name: "bad item", content: "not good" })
+     store.putLocal({ name: "item 2", content: "testing 2" })
+     stop(1000)
+     store.search "item", (items) ->
+         equals(items.length, 2, "should find 2 matching items")
+         equals(items[0].name, "item 1", "lower key item should be first")
+         equals(items[1].name, "item 2", "higher key item should be last")
+         start()
+
+test "searching for item by property", 3, ->
+    resetWiki()
+    store.putLocal({ name: "parent", content: "testing 1" })
+    store.putLocal({ name: "child 1", content: "not good", parent_item: "parent" })
+    store.putLocal({ name: "child 2", content: "testing 2", parent_item: "parent" })
+    stop(1000)
+    store.search ((a) -> a.parent_item == "parent"), (items) ->
+        equals(items.length, 2, "should find 2 matching items")
+        equals(items[0].name, "child 1", "lower key item should be first")
+        equals(items[1].name, "child 2", "higher key item should be last")
+        start()
+
+test "storing and creating arbitrary classes", 1, ->
+    resetWiki()
+    store.syncing(false)
+    item = new TestItemClass({ name: "andrew", content: "testing"})
+    stop()
+    store.put item, ->
+        store.get item.name, (item2) ->
+            equals(item2.uppercaseName(), "ANDREW")
+            start()
+    
+module "storage syncing"
+
 test "Create item locally; then sync", 8, ->
     resetWiki()
     store.syncing(false)
     stop()
+    console.log("Running local sync test")
     equals(store.unsyncedItems().length, 0, "should be no items waiting to be synced on reset store")
-    testItem = { name: "localItem", content: "testing" }
+    testItem = new TestItemClass({ name: "localItem", content: "testing" })
     store.put testItem, =>
         equals(store.unsyncedItems().length, 1, "should be one item waiting to be synced")
         equals(store.synced(testItem.name), false, "just created item should be unsynced")
@@ -111,25 +168,8 @@ test "remotely delete existing synced item, then resync", 1, ->
             store.sync =>
                 equals(store.getLocal(testItem.name, undefined, "Local item should be deleted"))
                 start()
-# 
-# test "retrieving an unknown item 'test'", 1, ->
-#     resetWiki()
-#     stop(1000)
-#     store.get "test", 
-#         (data) -> ok(false, "should not run success callback"); start(),
-#         (error) -> ok(true, "should run error callback"); start(),
-#         
-# test "searching for an item", 3, ->
-#     resetWiki()
-#     store.putLocal("item 1", { name: "item 1", content: "testing 1" })
-#     store.putLocal("bad item", { name: "bad item", content: "not good" })
-#     store.putLocal("item 2", { name: "item 2", content: "testing 2" })
-#     stop(1000)
-#     store.search "item", (items) ->
-#         equals(items.length, 2, "should find 2 matching items")
-#         equals(items[0].name, "item 1", "lower key item should be first")
-#         equals(items[1].name, "item 2", "higher key item should be last")
-#         start()
+
+
 #         
 # test "deleting an item should remote it", 1, ->
 #     resetWiki()

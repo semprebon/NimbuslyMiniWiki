@@ -60,4 +60,12 @@ test "get all items added since given version", 3, ->
     newItems.sort((a,b) -> if a.name < b.name then -1 else if a.name == b.name then 0 else 1)
     equals(newItems[0].name, 'item 1')
     equals(newItems[1].content, 'no')
+
+test "supports parent", 1, ->
+    resetWiki()
+    ajax({ type: 'PUT', url: url + '/parent', data: { name: 'parent', content: 'ok'} })
+    ajax({ type: 'PUT', url: url + '/child', data: { name: "child", content: 'no', parent_item: "parent"} })
+    ajax({ type: 'PUT', url: url + '/parent', data: { name: 'parent revised', content: 'ok'} })
+    data = ajax({ url: url + '/child', dataType: "json"})
+    equals(data.parent_item, "parent revised", "should save parent")
     

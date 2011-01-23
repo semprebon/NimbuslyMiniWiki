@@ -1,9 +1,14 @@
 application: nimbusly-miniwiki
-version: 1-4
+version: 1-6
 runtime: python
 api_version: 1
 
 handlers:
+- url: /cache-manefest
+  static_files: cache-manefest
+  mime_type: text/cache-manifest
+  upload: cache-manefest
+      
 - url: /stylesheets
   static_dir: stylesheets
 
