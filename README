@@ -1,0 +1,21 @@
+MiniWiki is a very simple wiki designed for mobile access. It is a demonstration project I developed to
+learn a bit more about:
+
+* HTML Local Storage
+* Pure Javascript view generation (all pages are plain html, with all interaction done via Javascript/AJAX)
+* JSON-only RESTful server (implemented in Python on Google App Engine)
+* Offline operation and synchronization
+
+This architecture, where the server serves up only static content (HTML, JavaScript, CSS) and simple REST-based
+database calls, is, I think, where the future of web development is. As Javascript engines get faster, it no
+longer makes sense to laboriously build up pages on the server. For one thing, if a javascript client is
+handling things, you basically don't have to build a separate API for your application, since the API is
+what you are using. Also, it should be easier to create mobile apps, either native (using the API) or web-based (customizing the existing Javascript client or css as needed).
+
+The app itself implements two basic models, a Wiki, identified by a URL, and Articles within the Wiki.
+
+You can try the app at http://nimbusly-miniwiki.appspot.com
+
+You will first need to create a wiki with a PUT to http://nimbusly-miniwiki.appspot.com/<name>
+
+If you then GET that url, you will see the wiki
