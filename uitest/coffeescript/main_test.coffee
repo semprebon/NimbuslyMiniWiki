@@ -44,3 +44,17 @@ test "should be able to get articles children and parent", 4, ->
     equals(parent.children().length, 2, "parent should have two children")
     equals(parent.children()[0].name, "child 1", "first child should be child 1")
     equals(parent.children()[1].name, "child 2", "second child should be child 2")
+
+test "tree traversal", 1, ->
+    resetWiki()
+    miniwiki.storage.putLocal({ name: "root", content: "root node" })
+    miniwiki.storage.putLocal({ name: "parent", content: "testing 1", parent_item: "root" })
+    miniwiki.storage.putLocal({ name: "parent 2", content: "testing 2", parent_item: "root" })
+    miniwiki.storage.putLocal({ name: "root 2", content: "testing 2" })
+    miniwiki.storage.putLocal({ name: "child 3", content: "testing 2", parent_item: "parent 2" })
+    miniwiki.storage.putLocal({ name: "child 1", content: "not good", parent_item: "parent" })
+    miniwiki.storage.putLocal({ name: "child 2", content: "testing 2", parent_item: "parent" })
+    list = []
+    miniwiki.traverse (item) => list.push(item.name)
+    deepEqual(['root', 'parent', 'child 1', 'child 2', 'parent 2', 'child 3', 'root 2'], list, 
+        "items should be vistied in order")

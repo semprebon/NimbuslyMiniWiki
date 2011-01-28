@@ -166,7 +166,6 @@ test "remotely delete existing synced item, then resync", 1, ->
                 equals(store.getLocal(testItem.name, undefined, "Local item should be deleted"))
                 start()
 
-
 #         
 # test "deleting an item should remote it", 1, ->
 #     resetWiki()

@@ -207,7 +207,8 @@ class CachedRESTStorage
         
     search: (condition, callback) ->
         items = this.searchLocal(condition)
-        callback(items)
+        callback(items) if callback
+        items
         
     attributesFromItem: (item) -> if item && item.toAttributes then item.toAttributes() else item
     
@@ -223,7 +224,7 @@ class CachedRESTStorage
         articles = (this.getLocal(key) for key in this.allKeys())
         callback(articles) if callback
         articles
-        
+
     # Remove all local data for this store
     reset: -> 
         (this.deleteLocal(key) for key in this.allKeys())

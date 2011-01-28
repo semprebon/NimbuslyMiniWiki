@@ -22,9 +22,9 @@ class Article
     
     children: -> this.storage().searchLocal (item) => (item.parent_item == this.name)
     
-    visit: (memo, callback) -> 
-        callback(memo, self)
-        child.visit(memo, callback) for child in this.children()
+    visit: (callback) -> 
+        callback(this)
+        child.visit(callback) for child in this.children()
         
 
 Article.depthFirstOrder = ->
@@ -132,6 +132,11 @@ class MiniWiki
             textile_link = '<a class="wikilink" href="' + this.urlFor(link) + '">' + link + '</a>'
             content = content.replace("[[" + link + "]]", textile_link)
         content
+        
+    traverse: (visitor) ->
+        roots = this.storage.search (item) => item.parent_item == undefined 
+        for root in roots
+            this.storage.getLocal(root).visit(visitor)
     
     sync: ->
         $('#show_page .menu .sync').addClass('working')
@@ -160,13 +165,20 @@ class MiniWiki
             this.showPage("show_page")
             return false
     
-    displayList: =>
+    addItemsToList: (articles) ->
+        for article in articles
+            $('#browse_page .list').append("<li class='item'><a href='#'>" + article.name + "</a></li>")
+            $('#browse_page .list').click (event) =>
+                this.displayArticle(event.target.text)
+
+    displayList: (sort) =>
         $('#browse_page .list').empty()
-        this.storage.allItems (articles) =>
-            for article in articles
-                $('#browse_page .list').append("<li class='item'><a href='#'>" + article.name + "</a></li>")
-                $('#browse_page .list').click (event) =>
-                    this.displayArticle(event.target.text)
+        if sort == "sort_hierarchy"
+            articles = []
+            this.traverse (article) => articles.push(article)
+            this.addItemsToList(articles)
+        else
+            this.storage.allItems (articles) => this.addItemsToList(articles)
         this.showPage('browse_page')
         return false
 
@@ -183,7 +195,7 @@ class MiniWiki
         $('.menu .sync').click (event) => this.sync()
         $('.menu .show').click (event) => this.showPage('show_page')
         $('.menu .save').click (event) => this.saveArticle()
-        $('.menu .sort').click (event) => this.displayList()
+        $('.menu .sort').click (event) => this.displayList(event.target.id)
 
         window.miniwiki = this
 
