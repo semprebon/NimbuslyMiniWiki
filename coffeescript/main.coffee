@@ -160,14 +160,15 @@ class MiniWiki
             this.showPage("show_page")
             return false
     
-    buildList: =>
+    displayList: =>
         $('#browse_page .list').empty()
         this.storage.allItems (articles) =>
             for article in articles
                 $('#browse_page .list').append("<li class='item'><a href='#'>" + article.name + "</a></li>")
                 $('#browse_page .list').click (event) =>
                     this.displayArticle(event.target.text)
-                    
+        this.showPage('browse_page')
+        return false
 
     # Set up event handlers
     install: =>
@@ -177,12 +178,12 @@ class MiniWiki
             $(this).show()
             $(this).fadeOut(5)
 
-        $('#show_page .menu .edit').click (event) => this.editArticle()
-        $('#show_page .menu .browse').click (event) => 
-            this.buildList()
-            this.showPage('browse_page')
-        $('#show_page .menu .sync').click (event) => this.sync()
-        $('#edit_page .menu .save').click (event) => this.saveArticle()
+        $('.menu .edit').click (event) => this.editArticle()
+        $('.menu .browse').click (event) => this.displayList()
+        $('.menu .sync').click (event) => this.sync()
+        $('.menu .show').click (event) => this.showPage('show_page')
+        $('.menu .save').click (event) => this.saveArticle()
+        $('.menu .sort').click (event) => this.displayList()
 
         window.miniwiki = this
 

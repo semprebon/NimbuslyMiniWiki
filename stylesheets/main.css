@@ -15,11 +15,11 @@ div.content { padding: 0 0 0 1em; }
     position: absolute;
     top: 0.2em; right: 0.8em;
     padding: 0; margin: 0;
-    width: 17em;
+    width: 25em;
 }
 .menu li { list-style-type: none; }
 .menu a, .menu a:visited {
-    width: 5em;
+    width: 6em;
     border: 1px solid #000000;
     border-radius: 0.5em;
     font-size:0.8em;

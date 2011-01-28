@@ -222,6 +222,7 @@ class CachedRESTStorage
     allItems: (callback) -> 
         articles = (this.getLocal(key) for key in this.allKeys())
         callback(articles) if callback
+        articles
         
     # Remove all local data for this store
     reset: -> 
