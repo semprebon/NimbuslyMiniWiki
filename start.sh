@@ -1,2 +1,2 @@
 #!/bin/bash
-dev_appserver.py --clear_datastore . >server.log 2>&1
+dev_appserver.py . >server.log 2>&1

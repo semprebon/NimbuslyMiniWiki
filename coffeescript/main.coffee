@@ -160,10 +160,14 @@ class MiniWiki
             this.showPage("show_page")
             return false
     
-    autocompleteSearch: (request, response) =>
-        this.storage.search request.term, (articles) ->
-            searchResults = (article.name for article in articles)
-            response(searchResults)
+    buildList: =>
+        $('#browse_page .list').empty()
+        this.storage.allItems (articles) =>
+            for article in articles
+                $('#browse_page .list').append("<li class='item'><a href='#'>" + article.name + "</a></li>")
+                $('#browse_page .list').click (event) =>
+                    this.displayArticle(event.target.text)
+                    
 
     # Set up event handlers
     install: =>
@@ -174,20 +178,12 @@ class MiniWiki
             $(this).fadeOut(5)
 
         $('#show_page .menu .edit').click (event) => this.editArticle()
-        $('#show_page .menu .search').click (event) => this.showPage('search_page')
+        $('#show_page .menu .browse').click (event) => 
+            this.buildList()
+            this.showPage('browse_page')
         $('#show_page .menu .sync').click (event) => this.sync()
         $('#edit_page .menu .save').click (event) => this.saveArticle()
-        $('#search_page .menu .show').click (event) => this.showPage('show_page')
 
-        $("#search_page input" ).autocomplete({
-            source: this.autocompleteSearch,
-            minLength: 2,
-            select: (event, ui) => 
-                if ui.item 
-                    this.load(ui.item.value, => 
-                        this.updateDisplay()
-                        this.showPage("show_page"))
-        })
         window.miniwiki = this
 
 window.MiniWiki = MiniWiki

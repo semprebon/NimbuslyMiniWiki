@@ -219,7 +219,9 @@ class CachedRESTStorage
     
     allKeys: -> this.keysWithPrefix("").sort()
         
-    allItems: (callback) -> (this.getLocal(key) for key in this.allKeys())
+    allItems: (callback) -> 
+        articles = (this.getLocal(key) for key in this.allKeys())
+        callback(articles) if callback
         
     # Remove all local data for this store
     reset: -> 

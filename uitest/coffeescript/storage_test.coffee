@@ -21,9 +21,6 @@ resetWiki = ->
 
 itemIsOnRemote = (item) ->
     data = ajax({ url: "/" + item.name, dataType: "json" })
-    console.log("Fetched item " + data.name + " from remote with content " + data.content)
-    console.log("content of local item is " + item.content)
-    console.log("itemsOnRemote returning " + (item.content == data.content))
     return item.content == data.content
 
 module "storage basics"

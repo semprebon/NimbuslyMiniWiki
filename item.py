@@ -152,7 +152,7 @@ class ItemHandler(LoggingHandler):
         store = db.get(self.store_key())
         if store == None:
             self.response.set_status(404)
-            self.response.out.write('Store ' + store + ' not found  ')
+            self.response.out.write('Store ' + self.store_name() + ' not found  ')
             return
             
         new_article = article == None
