@@ -25,8 +25,8 @@ The app itself implements two basic models, a Wiki, identified by a URL, and Art
 
 h1. Example
 
-You can try the app at http://nimbusly-miniwiki.appspot.com
+You can try the app "here":http://nimbusly-miniwiki.appspot.com
 
-You will first need to create a wiki with a PUT to http://nimbusly-miniwiki.appspot.com/<name>
+To create a new Wiki, send an http PUT request to http://nimbusly-miniwiki.appspot.com/<name>/article
 
-If you then GET that url, you will see the wiki
+If you then GET http://nimbusly-miniwiki.appspot.com/<name>, you will see the wiki
