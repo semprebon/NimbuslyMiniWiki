@@ -21,8 +21,12 @@ handlers:
 - url: /miniwikis
   script: item.py
 
+- url: /meta/user
+  script: user.py
+
 - url: /uitest
   static_dir: uitest
+  login: required
 
 - url: /test.*
   script: gaeunit.py

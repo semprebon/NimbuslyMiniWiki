@@ -19,6 +19,7 @@
 # * GET - get article from the wiki
 # * DELETE - delete article
 
+from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
@@ -71,6 +72,7 @@ class Item(db.Model):
             
 class Store(db.Model):
     version = db.IntegerProperty()
+    readers = db.ListProperty(users.User)
     
     def find_all(self):
         articles = Item.all()
@@ -84,10 +86,18 @@ class Store(db.Model):
             count += 1
         return count
     
-class LoggingHandler(webapp.RequestHandler):
+class AppHandler(webapp.RequestHandler):
     
     def log_header(self):
         return "STORE " + self.store_name()
+    
+    def validateUser(self):
+        store_users = self.store().readers
+        if len(store_users) > 0 and users.get_current_user() not in store_users:
+            self.request.set_status(401)
+            return False
+        else:
+            return True
         
     def log_method(self, method):
         logging.info("\n\n" + method + "  " + self.log_header() + " -- " + self.request.url)
@@ -108,7 +118,7 @@ class LoggingHandler(webapp.RequestHandler):
     def store(self):
         return db.get(self.store_key())
     
-class ItemHandler(LoggingHandler):
+class ItemHandler(AppHandler):
     
     def get(self):
         self.log_method("GET")
@@ -194,7 +204,7 @@ class ItemHandler(LoggingHandler):
     def item_key(self):
         return db.Key.from_path("Item", self.item_name(), parent=self.store_key())
 
-class StoreHandler(LoggingHandler):
+class StoreHandler(AppHandler):
       
     def log(self, action):
         logging.info(action + " store " + self.store_name())
@@ -222,7 +232,8 @@ class StoreHandler(LoggingHandler):
         articles = articles.fetch(limit=1000)
 
         if self.request.get("summary", "false") == "true":
-            result = { "version":  store.version }
+            users = [{"email": user.email()} for user in store.readers]
+            result = { "version":  store.version, "users": users }
         else:
             result = [article.to_dict() for article in articles]
 
@@ -232,6 +243,9 @@ class StoreHandler(LoggingHandler):
 
     def put(self):
         self.log_method("PUT")
+        user = users.get_current_user()
+        if user != None:
+            self.log("User is " + user.email())
         store = self.store()
         
         # due to bug in webapp, put doesn't get parameters from body
@@ -240,6 +254,11 @@ class StoreHandler(LoggingHandler):
         if is_new_store:
             store = Store(key_name=self.store_name())
             store.version = 0
+            self.log("Creating store for " + users.get_current_user().email())
+            store.readers = [users.get_current_user()]
+        else:
+            if not self.validateUser():
+                return
         store.put()
         self.log("Created" if is_new_store else "Updated")
         self.response.set_status(201)
@@ -277,7 +296,7 @@ class StoreHandler(LoggingHandler):
         self.response.out.write("ok")
         self.response.set_status(200)
 
-class MiniWikiHandler(LoggingHandler):
+class MiniWikiHandler(AppHandler):
     def get(self):
         self.log_method('GET')
         stores = [store.key().name() for store in Store.all()]

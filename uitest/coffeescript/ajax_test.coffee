@@ -4,14 +4,22 @@ url = window.testing_base_url("/test_ajax/article")
 
 ajax = (options) -> window.testAjax(url, options)
 resetWiki = -> window.resetWiki(url)
+loggedInUser = ->
+    url = window.testing_base_url("/meta/user")
+    user = null
+    jQuery.ajax({ async: false, type: 'GET', url: url, success: (data) => user = data })
+    return user
 
 module "miniwiki ajax api - collective actions"
 
-test "reset wiki deletes all articles in store", 1, ->
+test "reset wiki deletes all articles in store", 3, ->
      resetWiki()
      data = ajax({ url: "" })
      equals(data.length, 0, "Store should be empty")
-
+     data = ajax({ url: "?summary=true" })
+     equals(data.version, 0, "store should be at version 0")
+     deepEqual(data.users, [loggedInUser()], "original user should own the store")
+     
 test "get items starting with a term", 3, ->
     resetWiki()
     ajax({ type: 'PUT', url: '/item1', data: { name: "item 1", content: "testing" } })
@@ -22,6 +30,10 @@ test "get items starting with a term", 3, ->
     console.log("items starting with item=" + JSON.stringify(data))
     equals(data[0].name, "item 1")
     equals(data[1].name, "item 2")
+
+test "adding user to store", 1, ->
+    resetWiki()
+    
 
 module "miniwiki ajax api - item actions"
 
@@ -77,3 +89,7 @@ test "get all wikis", 1, ->
         ok(data.join('|').indexOf("test_ajax") >= 0, "list of wikis includes test_ajax")
     url = window.testing_base_url("/miniwikis")
     jQuery.ajax({ async: false, type: 'GET', url: url, success: callback })
+
+test "can get user info", 1, ->
+    ok(/.*@\w+.\.\w+/.test(loggedInUser().email), "Should return email address")
+

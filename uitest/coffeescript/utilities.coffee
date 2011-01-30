@@ -1,6 +1,7 @@
 window.testing_base_url = (test) ->
     window.location.protocol + "//" + window.location.host + test
     
+window.TEST_USER_EMAIL = "dummy@nimbusly.com"
 
 DEFAULT_OPTIONS = { async: false, type: 'GET' }
 
@@ -21,4 +22,3 @@ window.testAjax = (baseUrl, options) ->
 window.resetWiki = (baseUrl) -> 
     window.testAjax(baseUrl, { type: 'PUT', url: "" })
     window.testAjax(baseUrl, { type: 'DELETE', url: "?confirm=true&keep_store=true" })
-
