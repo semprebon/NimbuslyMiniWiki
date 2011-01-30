@@ -1,7 +1,16 @@
+h1. Overview
+
 MiniWiki is a very simple wiki designed for mobile access. It is a demonstration project I developed to
-learn a bit more about:
+learn a bit more about the technologies involved
+
+h1. Architecture
+
+Unlike a traditional web application where html pages are dynamically assembled server side, MiniWiki uses a client/server architecture where the client side does all the heavy lifting, and the server just serves up either static files, or acts as a simple json database. 
+
+MiniWiki architecture includes:
 
 * HTML Local Storage
+* "coffeescript":http://jashkenas.github.com/coffee-script/ for client side code
 * Pure Javascript view generation (all pages are plain html, with all interaction done via Javascript/AJAX)
 * JSON-only RESTful server (implemented in Python on Google App Engine)
 * Offline operation and synchronization
@@ -13,6 +22,8 @@ handling things, you basically don't have to build a separate API for your appli
 what you are using. Also, it should be easier to create mobile apps, either native (using the API) or web-based (customizing the existing Javascript client or css as needed).
 
 The app itself implements two basic models, a Wiki, identified by a URL, and Articles within the Wiki.
+
+h1. Example
 
 You can try the app at http://nimbusly-miniwiki.appspot.com
 
