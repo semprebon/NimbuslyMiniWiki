@@ -35,13 +35,13 @@ Article.depthFirstOrder = ->
 
 class MiniWiki
     constructor: (base_url, firstArticle)->
-        this.key = "title"
+        this.key = firstArticle
         this.baseUrl = base_url
         this.storage = new CachedRESTStorage(this.baseUrl + "/article", "name", Article)
         Article.storage = this.storage
         this.defaultContent = "Nobody has entered anything for this article"
         this.install()
-        miniwiki.displayArticle("title")
+        miniwiki.displayArticle(firstArticle)
         
     storeName: -> this.baseUrl.split("/").pop()
     
