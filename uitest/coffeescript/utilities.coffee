@@ -1,4 +1,8 @@
-DEFAULT_OPTIONS = { async: false, type: 'GET', dataType: "text" }
+window.testing_base_url = (test) ->
+    window.location.protocol + "//" + window.location.host + test
+    
+
+DEFAULT_OPTIONS = { async: false, type: 'GET' }
 
 window.testAjax = (baseUrl, options) ->
     result = null

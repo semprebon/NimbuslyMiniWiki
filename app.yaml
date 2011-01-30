@@ -18,6 +18,9 @@ handlers:
 - url: /.*/article.*
   script: item.py
 
+- url: /miniwikis
+  script: item.py
+
 - url: /uitest
   static_dir: uitest
 
@@ -25,8 +28,10 @@ handlers:
   script: gaeunit.py
   
 
-
 - url: /\w+
   static_files: miniwiki.html
   upload: miniwiki.html    
 
+- url: /
+  static_files: index.html
+  upload: index.html    

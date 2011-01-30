@@ -5,7 +5,7 @@
 # article requests will go to http://apphost.com/store/article/name
 
 class Article
-    ATTRIBUTE_NAMES = ["name", "contents", "parent"]
+    ATTRIBUTE_NAMES = ["name", "content", "parent"]
     
     constructor: (hash) ->
         for own key, value of hash
@@ -199,5 +199,6 @@ class MiniWiki
 
         window.miniwiki = this
 
+MiniWiki.Article = Article
 window.MiniWiki = MiniWiki
 

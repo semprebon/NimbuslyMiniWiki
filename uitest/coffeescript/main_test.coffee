@@ -1,7 +1,7 @@
-url = 'http://localhost:8080/test_main'
+url = window.testing_base_url("/test_main")
 
 store = new window.CachedRESTStorage url, "name"
-miniwiki = new window.MiniWiki(url, "Title")
+miniwiki = new window.MiniWiki(url, "Index")
 
 ajax = (options) -> window.testAjax(url, options)
 
@@ -11,9 +11,16 @@ resetWiki = ->
     console.log("Wiki reset")
 
 module("Miniwiki main")
-    
+
 test "Store name should be extracted from url", 1, ->
     equals(miniwiki.storeName(), "test_main")
+    
+test "Should be able to get relevent fields from item", 3, ->
+    item = new MiniWiki.Article({ name: "item", content: "testing", parent: "item2"}).toAttributes()
+    equals(item.name, "item")
+    equals(item.content, "testing")
+    equals(item.parent, "item2")
+    
     
 test "load article from storage into UI", 2, ->
     item = { name: "item 1", content: "This is a test" }

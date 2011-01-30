@@ -121,6 +121,7 @@ class ItemHandler(LoggingHandler):
         else:
             logging.info("fetched item " + article.name + " with  properties to " + json.dumps(article.to_dict()))
             self.log_action("Fetched")
+            self.response.headers['Content-Type'] = 'application/json'
             self.response.out.write(json.dumps(article.to_dict()))
 
     def param_for(self, name):
@@ -267,11 +268,26 @@ class StoreHandler(LoggingHandler):
             store.delete()
         self.log("Deleted " + str(count) + ' articles')
         self.response.out.write('deleted\n')
-        
+    
+    def options(self):
+        self.log_method('OPTIONS')
+        self.response.headers['Access-Control-Allow-Origin'] = self.request.headers.get('Origin', '')
+        self.response.headers['Access-Control-Allow-Methods'] = "POST, GET, OPTIONS, PUT, DELETE"
+        self.response.headers['Access-Control-Max-Age'] = '1728000'
+        self.response.out.write("ok")
+        self.response.set_status(200)
+
+class MiniWikiHandler(LoggingHandler):
+    def get(self):
+        self.log_method('GET')
+        stores = [store.key().name() for store in Store.all()]
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(json.dumps(stores))
 
 application = webapp.WSGIApplication([
     ('/.*/article', StoreHandler),
-    ('.*/article/.+', ItemHandler)
+    ('.*/article/.+', ItemHandler),
+    ('/miniwikis', MiniWikiHandler)
     ], debug=True)
 
 def main():

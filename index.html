@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="HandheldFriendly" content="true" />
+    <meta name="viewport" content="width=device-width, height=device-height, user-scalable=no" />
+    <title>MiniWiki</title>
+    <link href="/stylesheets/main.css" rel="stylesheet" type="text/css">
+    <link href="/stylesheets/custom-theme/jquery-ui-1.8.7.custom.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="/javascript/jquery-1.4.4.js"></script>
+    <script type="text/javascript" src="/javascript/jquery-ui-1.8.9.custom.min.js"></script>
+    <script type="text/javascript" src="/javascript/generated/index.js"></script>
+  </head>
+  <body class="ui-helper-reset">
+    <h1>MiniWiki</h1>
+    <div class="content">
+      <p><strong>MiniWiki</strong> is a simple web application for storing content. It is designed to work well on mobile
+      devices and even off-line.</p>
+    
+      <p>Available MiniWikis:</p>
+      <ul id="wiki_list"></ul>
+    </div>
+    <div id='error' style="display:none"></div>
+  </body>
+  
+  <script language="javascript">
+    $(document).ready(function() { 
+      window.loadMiniWikis() 
+    })
+  </script>
+</html>

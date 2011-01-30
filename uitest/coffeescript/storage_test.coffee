@@ -1,4 +1,4 @@
-url = 'http://localhost:8080/test_storage/article'
+url = window.testing_base_url("/test_storage/article")
 
 class TestItemClass
     constructor: (hash) ->

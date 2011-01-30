@@ -65,7 +65,8 @@ class CachedRESTStorage
     putLocal: (data, state) ->
         data = this.attributesFromItem(data)
         state = DIRTY if state == undefined
-        localStorage[this.urlFor(data)] = JSON.stringify({ state: state, data: data })
+        data_str = JSON.stringify({ 'state': state, 'data': data })
+        localStorage[this.urlFor(data)] = data_str
 
     # Puts or replaces an item on the remote server
     #
