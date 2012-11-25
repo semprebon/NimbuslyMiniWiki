@@ -1,7 +1,7 @@
 h1. Overview
 
 MiniWiki is a very simple wiki designed for mobile access. It is a demonstration project I developed to
-learn a bit more about the technologies involved
+learn a bit more about the technologies involved.
 
 h1. Architecture
 
@@ -30,3 +30,21 @@ You can try the app "here":http://nimbusly-miniwiki.appspot.com
 To create a new Wiki, send an http PUT request to http://nimbusly-miniwiki.appspot.com/<name>/article
 
 If you then GET http://nimbusly-miniwiki.appspot.com/<name>, you will see the wiki
+
+h1. License
+
+Nimbusly MiniWiki Copywrite 2011 Andrew Semprebon
+
+Nimbusly Dice Roller is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Nimbusly Dice Roller is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Nimbusly Dice Roller.  If not, see <http://www.gnu.org/licenses/>.
+
